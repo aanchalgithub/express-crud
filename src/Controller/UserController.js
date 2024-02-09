@@ -5,7 +5,8 @@ const Joi = require('joi')
 async function signup(req,res){
     try {
         console.log(req.body)
-        const{username,email,password}=req.body;
+        // const{username,email,password}=req.body;
+        const{email,password}=req.body;
         const schema = Joi.object({
             username: Joi.string()
             .min(3)
@@ -23,22 +24,17 @@ async function signup(req,res){
             return res.status(400).json({success:false,message:error})
         }
 
-        const user=await UserModel.findOne({$or:[{email},{username}]})
+        const user=await UserModel.findOne({$or:[{email}]})
         if(user){
           if(user.email==email){
             return res.status(400).json({
                 success:false,
                 message:'This email is already registered.'
             })
-          }else if(user.username==username){
-            return res.status(400).json({
-                success:false,
-                message:'This username is already been taken.'
-            })
           }
         }
         const hashedPassword=await bcrypt.hash(password,10)
-        var data = new UserModel({email,username,password:hashedPassword})
+        var data = new UserModel({email,password:hashedPassword})
         await data.save()
       return res.status(201).json({success:true,message : "Record is created",data})
     } catch (error) {
