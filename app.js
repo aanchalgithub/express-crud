@@ -22,17 +22,20 @@ const whiteList = ['http://localhost:3000/', 'http://localhost:3000','http://loc
 // app.use(cors(inableCors))
 app.use('/user',userRoute)
 app.use(cors())
-app.all('*', async (req, res) => {
-    try {
-        console.log(req.url);
-        return res.status(400).json({success : false, message : `${req.url} :Invalid Api request Method change it`})
+// app.all('*', async (req, res) => {
+//     try {
+//         console.log(req.url);
+//         return res.status(400).json({success : false, message : `${req.url} :Invalid Api request Method change it`})
 
-    } catch (error) {
+//     } catch (error) {
         
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
+//       console.error(error);
+//       res.status(500).json({ error: 'Internal server error' });
+//     }
+//   });
+app.get('/',async(req,res)=>{
+res.send('Hello')
+})
 app.listen(3000,()=>{
     console.log('Server is connected on 3000')
 })
