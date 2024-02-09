@@ -5,6 +5,8 @@ const bodyParser=require('body-parser')
 const app=express()
 const cors = require('cors')
 getConnect()
+
+app.use(cors())
 app.use(bodyParser.json())
 // app.use(bodyParser.urlencoded({extended:true}))
 const whiteList = ['http://localhost:3000/', 'http://localhost:3000','http://localhost:3001']
@@ -18,10 +20,8 @@ const whiteList = ['http://localhost:3000/', 'http://localhost:3000','http://loc
 //   },
 // };
 
-
 // app.use(cors(inableCors))
 app.use('/user',userRoute)
-app.use(cors())
 // app.all('*', async (req, res) => {
 //     try {
 //         console.log(req.url);
