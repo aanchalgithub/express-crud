@@ -8,10 +8,10 @@ async function signup(req,res){
         // const{username,email,password}=req.body;
         const{email,password}=req.body;
         const schema = Joi.object({
-            username: Joi.string()
-            .min(3)
-            .max(30)
-            .required(),
+            // username: Joi.string()
+            // .min(3)
+            // .max(30)
+            // .required(),
 
             email: Joi.string()
             .required().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
@@ -38,7 +38,7 @@ async function signup(req,res){
         await data.save()
       return res.status(201).json({success:true,message : "Record is created",data})
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             success : false,
             message : "Internal Server error"
         })
