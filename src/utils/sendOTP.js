@@ -34,3 +34,4 @@ async function sendOTP(email, otp) {
 
 
     module.exports = sendOTP
+    module.exports = generateRandomOtp

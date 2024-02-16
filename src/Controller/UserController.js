@@ -21,7 +21,8 @@ async function signup(req,res){
             .required().email({ minDomainSegments: 2 }),
 
             password: Joi.string()
-            .required().pattern(new RegExp('^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,15}$'))
+            .required()
+            .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
         })
         const {error} =await schema.validate(req.body)
         if(error){
@@ -162,7 +163,7 @@ async function verify_otp(req,res){
         
         const emailSchema = Joi.object({
             email: Joi.string()
-            .required().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+            .required().email({ minDomainSegments: 2}),
             otp : Joi.string()
             .required().pattern(/\d{6}/)
         })
