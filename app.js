@@ -2,6 +2,7 @@ const express=require('express')
 const getConnect = require('./src/utils/dbConnect')
 const userRoute=require('./src/Routes/userRoutes')
 const bodyParser=require('body-parser')
+
 const app=express()
 const cors = require('cors')
 getConnect()
@@ -36,6 +37,17 @@ app.use('/user',userRoute)
 app.get('/',async(req,res)=>{
 res.send('Hello')
 })
+// const encoder = bosyParser.urlencoded()
+// const MailAdress = "vaanchal05@gmail.com"
+// const transporter = nodeMailer.createTransport({
+//     host: "smtp.gmail.com",
+//     port: 587,
+//     tls: true,
+//     auth:{
+//     user:"vaanchal05@gmail.com",
+//     pass:"wxhe szef alcb tghv"
+//     }
+// })
 app.listen(3000,()=>{
     console.log('Server is connected on 3000')
 })

@@ -15,7 +15,14 @@ const UserSchema = new mongoose.Schema({
         type : String,
         default : "user",
         enum : roles
-    }
+    },
+    isVerify :{
+        type : Boolean,
+        default : false
+    },
+    phone : {
+        type : Number,
+    },
 },
 {
     timestamps : true
