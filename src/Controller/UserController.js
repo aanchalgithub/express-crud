@@ -145,7 +145,8 @@ async function login(req,res){
        
         return res.status(200).json({
             success:true,
-            message:'Login successfully.'
+            message:'Login successfully.',
+            user
         })
     }catch(err){
         return res.status(500).json({
@@ -201,10 +202,11 @@ async function verify_otp(req,res){
         _id: otp._id, 
       });
       console.log('OTP verified and deleted:', deletedOtp._id);
-      await UserModel.updateOne({email : user.email},{$set : {isVerify : true}})
+      const Verification = await UserModel.findOneAndUpdate({email : user.email},{$set : {isVerify : true}},{new : true})
      return res.status(200).json({
         success: true,
-        message: 'OTP verified successfully. You can now login.'
+        message: 'OTP verified successfully. You can now login.',
+        user : Verification
       });
   
     
