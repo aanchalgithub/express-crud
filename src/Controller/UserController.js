@@ -5,13 +5,15 @@ const Joi = require('joi');
 const nodemailer = require('nodemailer');
 const generateRandomOtp = require('../utils/generateRandomOtp')
 const sendOTP = require("../utils/sendOTP")
+const jwt = require("jsonwebtoken")
+
 
 
 
 async function signup(req,res){
 
     try {
-        console.log(req.body)
+        
         
         const{email,password}=req.body;
         const schema = Joi.object({
@@ -95,7 +97,7 @@ async function login(req,res){
         const loginSchema = Joi.object({
 
             email: Joi.string()
-            .required().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+            .required().email({ minDomainSegments: 2}),
 
             password: Joi.string()
             .required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
@@ -119,7 +121,7 @@ async function login(req,res){
         }
         const user=await UserModel.findOne({email})
         
-      console.log(email);
+      
         if(!user){
             return res.status(400).json({
                 success:false,
@@ -143,11 +145,15 @@ async function login(req,res){
         });
       }
         
+      const token = jwt.sign({ userId: user._id }, 'your-secret-key', {
+        expiresIn: '1h',
+        });
        
         return res.status(200).json({
             success:true,
             message:'Login successfully.',
-            user
+            user,
+            token
         })
     }catch(err){
         return res.status(500).json({
@@ -167,6 +173,7 @@ async function verify_otp(req,res){
             otp : Joi.string()
             .required().pattern(/\d{6}/)
         })
+        
 
         const {error} =  await emailSchema.validate(req.body)
         if(error){
@@ -175,6 +182,7 @@ async function verify_otp(req,res){
                 message : error
             })
         }
+        
         
         const user = await UserModel.findOne({email})
        
@@ -199,16 +207,25 @@ async function verify_otp(req,res){
         message:'Invalid otp provided.'
     })
   }
+ 
       const deletedOtp = await OtpModel.deleteOne({
         _id: otp._id, 
       });
       console.log('OTP verified and deleted:', deletedOtp._id);
+
+    
+
+ 
+ 
       const Verification = await UserModel.findOneAndUpdate({email : user.email},{$set : {isVerify : true}},{new : true})
      return res.status(200).json({
         success: true,
         message: 'OTP verified successfully. You can now login.',
-        user : Verification
+        user : Verification,
+       
       });
+     
+     
   
     
  }catch(error){
@@ -247,20 +264,23 @@ async function resend_otp(req, res) {
     
     const existingOtp = await OtpModel.findOne({
       userId: user._id,
+      isVerified : false,
       isExpired: { $gte: Date.now() },
     });
+   
 
-    if (existingOtp && !existingOtp.isVerified) {
-      
+    if (existingOtp) {
       await sendOTP(user.email, existingOtp.otp);
       return res.status(200).json({
-        success: true,
-        message: "OTP resent successfully.",
+          success: true,
+          message: "OTP resent successfully.",
       });
-    }
+  }
 
+ 
    
     const newOtp = generateRandomOtp();
+    
 
    
     const otp = new OtpModel({
@@ -274,7 +294,7 @@ async function resend_otp(req, res) {
 
  
     await sendOTP(email, newOtp);
-    console.log(newOtp);
+    
 
     res.status(200).json({
       success: true,

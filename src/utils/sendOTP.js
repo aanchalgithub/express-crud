@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const generateRandomOtp = require('../utils/generateRandomOtp')
+
 
 async function sendOTP(email, otp) {
     try {
@@ -34,4 +34,4 @@ async function sendOTP(email, otp) {
 
 
     module.exports = sendOTP
-    module.exports = generateRandomOtp
+  
