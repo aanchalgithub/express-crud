@@ -277,9 +277,10 @@ async function resend_otp(req, res) {
       });
   }
 
- 
+  await OtpModel.deleteMany({ userId: user._id });
    
     const newOtp = generateRandomOtp();
+   
     
 
    
@@ -292,9 +293,7 @@ async function resend_otp(req, res) {
     console.log(otp);
     await otp.save();
 
- 
     await sendOTP(email, newOtp);
-    
 
     res.status(200).json({
       success: true,
@@ -309,6 +308,87 @@ async function resend_otp(req, res) {
   }
 }
 
-   
+async function forgotPassword(req, res) {
+  try {
+      const { email } = req.body;
+
     
-module.exports = {signup,login,verify_otp,resend_otp}
+      const schema = Joi.object({
+          email: Joi.string().required().email({ minDomainSegments: 2 }),
+      });
+
+      const { error } = await schema.validate(req.body);
+      if (error) {
+          return res.status(400).json({ success: false, message: error.message });
+      }
+
+     
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ success: false, message: "User not found." });
+      }
+
+      
+      const temporaryPassword = Math.random().toString(36).slice(-8);
+
+     
+      const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+      
+      await UserModel.findByIdAndUpdate(user._id, { password: hashedPassword });
+
+     
+      const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          auth: {
+              user: 'vaanchal05@gmail.com',
+              pass: 'wxhe szef alcb tghv'
+          }
+      });
+
+      const mailOptions = {
+          from: 'vaanchal05@gmail.com',
+          to: email,
+          subject: 'ABHCGDTGHHJ@123',
+          html: `<p>Your temporary password is: <strong>${temporaryPassword}</strong>. Please use this to login and change your password.</p>`
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      return res.status(200).json({ success: true, message: "Temporary password sent to your email." });
+  } catch (error) {
+      console.error("Error in forgot password:", error);
+      return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+async function changePassword(req, res) {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!userId || !newPassword) {
+      return res.status(400).json({ success: false, message: "UserId and newPassword are required." });
+    }
+
+   
+    const updatedUser = await UserModel.findOneAndUpdate({ email: userId }, { password: newPassword }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    updatedUser.password = hashedPassword;
+    await updatedUser.save();
+
+    return res.status(200).json({ success: true, message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error in changing password:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+    
+module.exports = {signup,login,verify_otp,resend_otp,forgotPassword,changePassword}

@@ -1,6 +1,9 @@
 const express=require('express')
 const getConnect = require('./src/utils/dbConnect')
 const userRoute=require('./src/Routes/userRoutes')
+const Todoroutes = require('./src/Routes/ToDoRoutes')
+
+
 const bodyParser=require('body-parser')
 
 const app=express()
@@ -23,6 +26,7 @@ const whiteList = ['http://localhost:3000/', 'http://localhost:3000','http://loc
 
 // app.use(cors(inableCors))
 app.use('/user',userRoute)
+app.use('/api',Todoroutes);
 // app.all('*', async (req, res) => {
 //     try {
 //         console.log(req.url);
@@ -50,4 +54,5 @@ res.send('Hello')
 // })
 app.listen(3000,()=>{
     console.log('Server is connected on 3000')
+   
 })
